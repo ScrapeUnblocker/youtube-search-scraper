@@ -7,7 +7,7 @@ name = "youtube-search-scraper"
 version = "0.1.0"
 description = "Scrape YouTube search results as clean JSON/CSV via the ScrapeUnblocker API."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "ScrapeUnblocker" }]
 keywords = ["youtube", "scraper", "web-scraping", "serp", "scrapeunblocker"]
@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
 ]
-dependencies = ["scrapeunblocker>=0.1"]
+dependencies = ["scrapeunblocker>=0.19,<1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff>=0.4"]
@@ -34,7 +34,7 @@ where = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

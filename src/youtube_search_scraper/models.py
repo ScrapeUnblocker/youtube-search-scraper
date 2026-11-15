@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 # Fields written to CSV, in order. Kept explicit so the column layout is stable.
 CSV_FIELDS = (
@@ -28,6 +29,29 @@ def _clean(value: object) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+# Query params YouTube adds to search-result links: ``pp`` is a per-search
+# tracking token, ``t`` starts playback part-way through the video.
+_URL_NOISE_PARAMS = {"pp", "t"}
+
+
+def clean_url(url: str | None) -> str | None:
+    """Drop search tracking / start-time params from a video URL.
+
+    ``.../watch?v=abc&t=109s&pp=ygUP...`` -> ``.../watch?v=abc``. Other params
+    (e.g. ``list`` on mix results) are kept.
+    """
+    text = _clean(url)
+    if text is None:
+        return None
+
+    parts = urlsplit(text)
+    query = parse_qsl(parts.query, keep_blank_values=True)
+    kept = [(k, v) for k, v in query if k not in _URL_NOISE_PARAMS]
+    if len(kept) == len(query):
+        return text
+    return urlunsplit(parts._replace(query=urlencode(kept)))
 
 
 def parse_views(view_count: str | None) -> int | None:
@@ -96,7 +120,7 @@ class Video:
         return cls(
             video_id=_clean(item.get("video_id")),
             title=_clean(item.get("title")),
-            url=_clean(item.get("url")),
+            url=clean_url(item.get("url")),
             channel=_clean(item.get("channel_name")),
             duration=duration,
             duration_seconds=parse_duration(duration),

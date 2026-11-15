@@ -1,7 +1,7 @@
 # youtube-search-scraper
 
 [![CI](https://github.com/ScrapeUnblocker/youtube-search-scraper/actions/workflows/ci.yml/badge.svg)](https://github.com/ScrapeUnblocker/youtube-search-scraper/actions/workflows/ci.yml)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Scrape **YouTube search results** as clean, structured JSON or CSV — video id,

@@ -1,6 +1,6 @@
 """Unit tests for parsing helpers and the Video model (offline, no API calls)."""
 
-from youtube_search_scraper.models import Video, parse_duration, parse_views
+from youtube_search_scraper.models import Video, clean_url, parse_duration, parse_views
 
 
 def test_parse_views_full_number():
@@ -31,11 +31,34 @@ def test_parse_duration_missing_or_junk():
     assert parse_duration("LIVE") is None
 
 
+def test_clean_url_drops_tracking_and_start_time():
+    url = "https://www.youtube.com/watch?v=_uQrJ0TkZlc&t=109s&pp=ygUPcHl0aG9uIHR1dG9yaWFs"
+    assert clean_url(url) == "https://www.youtube.com/watch?v=_uQrJ0TkZlc"
+
+
+def test_clean_url_keeps_mix_params():
+    url = (
+        "https://www.youtube.com/watch?v=n61ULEU7CO0&list=RDn61ULEU7CO0"
+        "&start_radio=1&pp=ygUSbG9maSBoaXAgaG9wIHJhZGlvoAcB"
+    )
+    assert clean_url(url) == (
+        "https://www.youtube.com/watch?v=n61ULEU7CO0&list=RDn61ULEU7CO0&start_radio=1"
+    )
+
+
+def test_clean_url_untouched_or_missing():
+    assert clean_url("https://www.youtube.com/watch?v=abc123") == (
+        "https://www.youtube.com/watch?v=abc123"
+    )
+    assert clean_url(None) is None
+    assert clean_url("") is None
+
+
 def test_from_parsed_item_full():
     item = {
         "video_id": "abc123",
         "title": "Learn Python",
-        "url": "https://www.youtube.com/watch?v=abc123",
+        "url": "https://www.youtube.com/watch?v=abc123&pp=ygUGcHl0aG9u",
         "channel_name": "freeCodeCamp.org",
         "duration": "4:26:52",
         "view_count": "49,264,417 views",
@@ -45,6 +68,7 @@ def test_from_parsed_item_full():
     }
     video = Video.from_parsed_item(item, query="python")
     assert video.video_id == "abc123"
+    assert video.url == "https://www.youtube.com/watch?v=abc123"
     assert video.channel == "freeCodeCamp.org"
     assert video.views == 49264417
     assert video.duration_seconds == 4 * 3600 + 26 * 60 + 52
